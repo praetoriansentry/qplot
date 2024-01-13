@@ -1,0 +1,53 @@
+#!/bin/bash
+
+qplot_opts=":d:t:s:"
+data_file="data.txt"
+plot_title="QPlot Data"
+x_label=""
+y_label=""
+
+while getopts $qplot_opts opt; do
+    case $opt in
+        # The data file that we're going to try to plot
+        d)
+            data_file="$OPTARG"
+            ;;
+        # the title of the plot
+        t)
+            plot_title="$OPTARG"
+            ;;
+        # the x label
+        x)
+            x_label="$OPTARG"
+            ;;
+        # the x label
+        y)
+            y_label="$OPTARG"
+            ;;
+        :)
+            echo "Option -${OPTARG} requires an argument."
+            exit 1
+            ;;
+        ?)
+        echo "Invalid option: -$OPTARG."
+        exit 1
+        ;;
+    esac
+done
+
+
+render_single_plot() {
+    local data_file="$1"
+    local title="$2"
+    local value_label="$3"
+
+    local out_file="$data_file".png
+    echo "Plotting $data_file in $out_file"
+    gnuplot -e "set terminal pngcairo size 1920,1080;
+set output '$out_file';
+set title \"$title\";
+set ylabel '$value_label';
+plot '$data_file' using 1:2 with lines title '';"
+}
+
+render_single_plot $data_file $plot_title $y_label

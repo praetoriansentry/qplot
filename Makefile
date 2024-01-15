@@ -2,6 +2,7 @@ examples:
 	./qplot -d testdata/free-memory.txt.dat -t dumb -x 130 -y 50
 	./qplot -d testdata/cpu-load-with-timestamp.dat -t dumb -f "%s"
 	./qplot -d testdata/iops-no-index -t dumb -n
+	./qplot -d testdata/paladin-utime.pivoted.tsv -f "%s" -t dumb -c 9
 
 .PHONY: testdata
 testdata:

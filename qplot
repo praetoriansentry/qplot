@@ -1,6 +1,6 @@
 #!/bin/bash
 
-qplot_opts=":d:t:s:o:x:y:X:Y:T:f:n"
+qplot_opts=":d:t:s:o:x:y:X:Y:T:f:nc:"
 data_file="data.txt"
 plot_title="QPlot Data"
 x_label=""
@@ -11,6 +11,7 @@ out_file=""
 terminal="pngcairo"
 time_format=""
 no_index=""
+col_count=""
 
 while getopts $qplot_opts opt; do
     case "$opt" in
@@ -48,6 +49,9 @@ while getopts $qplot_opts opt; do
         n)
             no_index="true"
             ;;
+        c)
+            col_count="$OPTARG"
+            ;;
         :)
             echo "Option -${OPTARG} requires an argument."
             exit 1
@@ -84,7 +88,16 @@ get_gnuplot_script() {
     resp+="set title \"$plot_title\"; "
     resp+="set ylabel '$y_label'; "
     resp+="set xlabel '$x_label'; "
-    resp+="plot '$data_file' using $using_arg with lines title ''; "
+
+    if [[ $col_count != "" ]]; then
+        using_arg="1:$col_count"
+        resp+="set key autotitle columnhead; "
+        resp+="plot for [i=2:$col_count] '$data_file' using 1:i with lines title columnhead(i); "
+    else
+        resp+="plot '$data_file' using $using_arg with lines title ''; "
+    fi
+
+
     echo $resp
 }
 

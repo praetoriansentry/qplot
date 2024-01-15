@@ -1,28 +1,44 @@
 #!/bin/bash
 
-qplot_opts=":d:t:s:"
+qplot_opts=":d:t:s:o:x:y:X:Y:T:"
 data_file="data.txt"
 plot_title="QPlot Data"
 x_label=""
 y_label=""
+x_dim="1920"
+y_dim="1080"
+out_file=""
+terminal="pngcairo"
 
 while getopts $qplot_opts opt; do
-    case $opt in
-        # The data file that we're going to try to plot
+    case "$opt" in
+        # The datafile that we're going to polot
         d)
             data_file="$OPTARG"
             ;;
-        # the title of the plot
-        t)
+        # The title of the plot
+        T)
             plot_title="$OPTARG"
             ;;
         # the x label
-        x)
+        X)
             x_label="$OPTARG"
             ;;
         # the x label
-        y)
+        Y)
             y_label="$OPTARG"
+            ;;
+        x)
+            x_dim="$OPTARG"
+            ;;
+        y)
+            y_dim="$OPTARG"
+            ;;
+        o)
+            out_file="$OPTARG"
+            ;;
+        t)
+            terminal="$OPTARG"
             ;;
         :)
             echo "Option -${OPTARG} requires an argument."
@@ -35,19 +51,31 @@ while getopts $qplot_opts opt; do
     esac
 done
 
+get_gnuplot_script() {
+    if [[ "$terminal" == "pngcairo" ]]; then
+        resp="set terminal pngcairo size $x_dim,$y_dim; "
+    elif [[ "$terminal" == "dumb" ]]; then
+        resp="set terminal dumb size $x_dim,$y_dim; "
+    fi
 
-render_single_plot() {
-    local data_file="$1"
-    local title="$2"
-    local value_label="$3"
+    if [[ $out_file != "" ]]; then
+        resp+="set output '$out_file'; "
+    fi
 
-    local out_file="$data_file".png
-    echo "Plotting $data_file in $out_file"
-    gnuplot -e "set terminal pngcairo size 1920,1080;
-set output '$out_file';
-set title \"$title\";
-set ylabel '$value_label';
-plot '$data_file' using 1:2 with lines title '';"
+    resp+="set title \"$plot_title\"; "
+    resp+="set ylabel '$y_label'; "
+    resp+="set xlabel '$x_label'; "
+    resp+="plot '$data_file' using 1:2 with lines title ''; "
+    echo $resp
 }
 
-render_single_plot $data_file $plot_title $y_label
+render_single_plot() {
+    echo "Plotting $data_file in $out_file" 1>&2
+
+    gnuScript=$(get_gnuplot_script)
+    echo -e $gnuScript 1>&2
+
+    gnuplot -e "$gnuScript"
+}
+
+render_single_plot

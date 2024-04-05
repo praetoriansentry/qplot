@@ -1,6 +1,6 @@
 #!/bin/bash
 
-qplot_opts=":d:t:s:o:x:y:X:Y:T:f:nc:"
+qplot_opts=":d:t:s:o:x:y:X:Y:T:f:S:nc:"
 data_file="data.txt"
 plot_title="QPlot Data"
 x_label=""
@@ -12,6 +12,7 @@ terminal="pngcairo"
 time_format=""
 no_index=""
 col_count=""
+datafile_separator=""
 
 while getopts $qplot_opts opt; do
     case "$opt" in
@@ -46,6 +47,9 @@ while getopts $qplot_opts opt; do
         f)
             time_format="$OPTARG"
             ;;
+        S)
+            datafile_separator="$OPTARG"
+            ;;
         n)
             no_index="true"
             ;;
@@ -64,10 +68,16 @@ while getopts $qplot_opts opt; do
 done
 
 get_gnuplot_script() {
+    resp=""
+
+    if [[ $datafile_separator != "" ]]; then
+        resp+="set datafile separator \"$datafile_separator\"; "
+    fi
+
     if [[ "$terminal" == "pngcairo" ]]; then
-        resp="set terminal pngcairo size $x_dim,$y_dim; "
+        resp+="set terminal pngcairo size $x_dim,$y_dim; "
     elif [[ "$terminal" == "dumb" ]]; then
-        resp="set terminal dumb size $x_dim,$y_dim; "
+        resp+="set terminal dumb size $x_dim,$y_dim; "
     fi
 
     if [[ $out_file != "" ]]; then

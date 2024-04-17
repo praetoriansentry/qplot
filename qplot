@@ -1,6 +1,33 @@
 #!/bin/bash
 
-qplot_opts=":d:t:s:o:x:y:X:Y:T:f:S:nc:"
+print_help() {
+    echo "idk figure it out"
+cat << EOF
+Usage: ${0##*/} [options]
+
+This script is meant to simplify making plots with gnuplot.
+
+Options:
+  -h          Display this help and exit
+  -d          The datafile that will be used for ploting. Defaults to data.txt
+  -T          The title of the plot
+  -X          The x label
+  -Y          The ylabe
+  -x          The horizontal size of the plot in pixels or characters
+  -y          The verticle size of the plot in pixels or characters
+  -o          The file where the plot would be saved
+  -t          The terminal to use for rendering the output. Defaults to pngcairo. Some other nice ones are cairolatex or dumb
+  -f          If the first column is time, you can use this to specify the input format of the time
+  -F          The is used to format the time for output
+  -S          If the separator isn't a space, use this to set the separator
+  -n          If the data has only one column, use this flag
+  -c          If there is more than two columns, us this to specify how many should be plotted
+
+EOF
+
+}
+
+qplot_opts=":d:t:s:o:x:y:X:Y:T:F:f:S:nhc:"
 data_file="data.txt"
 plot_title="QPlot Data"
 x_label=""
@@ -12,23 +39,24 @@ terminal="pngcairo"
 time_format=""
 no_index=""
 col_count=""
+out_time_format="%m/%d/%Y %H:%M:%S"
 datafile_separator=""
 
 while getopts $qplot_opts opt; do
     case "$opt" in
-        # The datafile that we're going to polot
+        h)
+            print_help
+            exit
+            ;;
         d)
             data_file="$OPTARG"
             ;;
-        # The title of the plot
         T)
             plot_title="$OPTARG"
             ;;
-        # the x label
         X)
             x_label="$OPTARG"
             ;;
-        # the x label
         Y)
             y_label="$OPTARG"
             ;;
@@ -46,6 +74,9 @@ while getopts $qplot_opts opt; do
             ;;
         f)
             time_format="$OPTARG"
+            ;;
+        F)
+            out_time_format="$OPTARG"
             ;;
         S)
             datafile_separator="$OPTARG"
@@ -87,7 +118,7 @@ get_gnuplot_script() {
     if [[ $time_format != "" ]]; then
         resp+="set xdata time; "
         resp+="set timefmt \"$time_format\"; "
-        resp+="set format x \"%m/%d/%Y %H:%M:%S\"; "
+        resp+="set format x \"$out_time_format\"; "
     fi
 
     using_arg="1:2"
@@ -119,5 +150,6 @@ render_single_plot() {
 
     gnuplot -e "$gnuScript"
 }
+
 
 render_single_plot

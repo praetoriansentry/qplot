@@ -1,1 +1,85 @@
-Wrapper around gnuplot
+A simple wrapper around [[http://www.gnuplot.info/][gnuplot]] to make my life simpler.
+
+
+* Examples
+
+** Indexed Data
+
+#+begin_src bash
+./qplot -T "Indexed Data" -d testdata/free-memory-indexed.dat > examples/free-memory-indexed.png
+#+end_src
+
+[[file:examples/free-memory-indexed.png]]
+
+** Unindexed Dataset
+
+#+begin_src bash
+./qplot -T "Unindexed Data" -d testdata/iops-no-index -n > examples/iops-no-index.png
+#+end_src
+
+[[file:examples/iops-no-index.png]]
+
+** Timestamped Dataset
+
+#+begin_src bash
+./qplot -T "Timestamped Data" -d testdata/cpu-load-with-timestamp.dat -f "%s" > examples/cpu-load-with-timestamp.png
+#+end_src
+
+[[file:examples/cpu-load-with-timestamp.png]]
+
+
+** Multiple Columns
+
+#+begin_src bash
+awk -f pivot.awk testdata/paladin-utime.tsv > pivoted.txt
+./qplot -T "Timestamped Multi-column" -d pivoted.txt -f "%s" -c 8 > examples/multiple-columns.png
+#+end_src
+
+[[file:examples/multiple-columns.png]]
+
+** Date Parsing
+
+#+begin_src bash
+./qplot -S "\t" -T "Block Heights" -X "DB Created At Time" -Y "Block Number" -d testdata/block-height.dat -F "%H:%M:%S" -f "%Y-%m-%d %H:%M:%S+00" > examples/date-parsing.png
+#+end_src
+
+
+[[file:examples/date-parsing.png]]
+
+
+** Dumb Terminal
+
+#+begin_src bash
+./qplot -T "Dummy Out" -F "%H:%M" -d testdata/cpu-load-with-timestamp.dat -f "%s" -t dumb
+#+end_src
+
+#+begin_example
+                                      Dummy Out                                
+     180 +-----------------------------------------------------------------+   
+         |      +       +      +      +       +      +      +       +      |   
+         |                               **                        *       |   
+     175 |-+                          ** ***                      **     +-|   
+         |                            ***   ***   * **            * *      |   
+         |                            *        ** ** *           ** *      |   
+     170 |-+                         *         * *   *      *  ** *      +-|   
+         |                           *               *      ***            |   
+         |    *                   * *                 *    *               |   
+     165 |-+* **                  ***                  ** *              +-|   
+         | * ** *                *  *                  * **                |   
+         |      *        ****   **                       **                |   
+     160 |-+    *       **  *   *                                        +-|   
+         |       *      **   ***                                           |   
+         |       *******     *                                             |   
+     155 |-+          *                                                  +-|   
+         |                                                                 |   
+         |      +       +      +      +       +      +      +       +      |   
+     150 +-----------------------------------------------------------------+   
+       19:10  19:15   19:20  19:25  19:30   19:35  19:40  19:45   19:50  19:55 
+
+#+end_example
+
+** Pretty Out
+
+#+begin_src bash
+./qplot -T "Dummy Out" -F "%H:%M" -d testdata/cpu-load-with-timestamp.dat -f "%s" -t cairolatex
+#+end_src
